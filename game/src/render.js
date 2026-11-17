@@ -5,6 +5,20 @@ import { VIEW_W, VIEW_H, WORLD_W, WORLD_H, DAYS, ENEMIES, ABILITIES, RELICS, COL
 import { clamp } from './random.js';
 import { waveForDay } from './enemies.js';
 
+// What each raider does, shown under its name in the THREAT QUEUE — the
+// same pattern the top entries use (name, behaviour, count). Phrases match
+// the rules in enemies.js/config.js: wasps and hornets hunt the bee; mites
+// swarm the hive in packs; spiders and beetles march on the hive and chew
+// it; the queen calls mites while she lives.
+const BEHAVIOUR = {
+  wasp: 'dives at the bee',
+  mite: 'swarms in packs',
+  spider: 'slow, chews the hive',
+  beetle: 'armored, slow',
+  hornet: 'hunts the guardian',
+  queen: 'calls mites',
+};
+
 export function cameraFor(beeX, beeY) {
   return {
     x: clamp(beeX - VIEW_W / 2, 0, Math.max(0, WORLD_W - VIEW_W)),
@@ -501,7 +515,7 @@ export function drawHUD(ctx, game) {
   const nextDay = Math.min(bee.day + 1, 7);
   const nextRows = bee.day < 7 ? waveForDay(nextDay).length : 1;
   const relicRows = Math.max(1, bee.relics.length);
-  const panelH = 54 + 6 * 24 + 4 + 26 + 26 + nextRows * 22 + 4 + 26 + 26 + relicRows * 20 + 12;
+  const panelH = 54 + 6 * 34 + 4 + 26 + 26 + nextRows * 22 + 4 + 26 + 26 + relicRows * 20 + 12;
   const px = 1048;
   const py = 116;
   const pw = 220;
@@ -527,7 +541,10 @@ export function drawHUD(ctx, game) {
     ctx.fill();
     text(ctx, def.name.toUpperCase(), px + 36, ry, 13, '#1f2937', true);
     text(ctx, `×${count}`, px + pw - 12, ry, 13, count ? '#dc2626' : '#a8a29e', true, 'right');
-    ry += 24;
+    // Behaviour line, smaller and dimmer, so the judge reads what each
+    // raider does without the panel growing wider.
+    text(ctx, BEHAVIOUR[kind], px + 36, ry + 15, 11, '#78716c', false);
+    ry += 34;
   }
   ctx.fillStyle = '#92400e';
   ctx.fillRect(px, ry + 4, pw, 26);
